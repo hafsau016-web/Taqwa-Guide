@@ -4,24 +4,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: '17'
+          distribution: 'temurin'
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '20'
       - name: Install Cordova
         run: npm install -g cordova
-      - name: Add Android Platform
-        run: cordova platform add android
-      - name: Build APK
-        run: cordova build android --debug
+      - name: Setup Project and Build
+        run: |
+          cordova create temp_app com.taqwa.guide TaqwaGuide
+          cp config.xml temp_app/config.xml
+          cp index.html temp_app/www/index.html
+          cd temp_app
+          cordova platform add android
+          cordova build android --debug
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Taqwa-Guide-APK
-          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          path: temp_app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
