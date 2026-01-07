@@ -5,25 +5,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          
       - name: Install Cordova
         run: npm install -g cordova
+        
       - name: Setup Project and Build
         run: |
+          # প্রজেক্ট তৈরি এবং নির্দিষ্ট প্ল্যাটফর্ম যোগ
           cordova create temp_app com.taqwa.guide TaqwaGuide
           cp config.xml temp_app/config.xml
           cp index.html temp_app/www/index.html
           cd temp_app
-          cordova platform add android
+          
+          # নির্দিষ্ট অ্যান্ড্রয়েড ভার্সন যোগ (এটি এররটি ঠিক করবে)
+          cordova platform add android@12.0.0
+          
+          # লাইসেন্স গ্রহণ
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          
+          # এপিকে বিল্ড
           cordova build android --debug
+          
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
