@@ -1,29 +1,42 @@
-name: Simple Build
-on: [push]
+name: Android Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          java-version: '11'
-          distribution: 'temurin'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '16'
+          node-version: 16
+
       - name: Install Cordova
         run: npm install -g cordova
+
+      - name: Create Project
+        run: |
+          cordova create app com.taqwaguide.app "Taqwa Guide"
+          cp config.xml app/
+          rm -rf app/www
+          cp -r www app/
+          cd app
+          cordova platform add android
+          cordova plugin add cordova-plugin-local-notification
+          cordova plugin add cordova-plugin-device
+          
       - name: Build APK
         run: |
-          cordova create myapp com.taqwa.guide Taqwa
-          cp index.html myapp/www/index.html
-          cp config.xml myapp/config.xml
-          cd myapp
-          cordova platform add android@10.1.1
+          cd app
           cordova build android --debug
-      - name: Upload
-        uses: actions/upload-artifact@v4
+          
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
         with:
-          name: Taqwa-App
-          path: myapp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          name: app-debug
+          path: app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
