@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.taqwa.guide" version="1.0.0" xmlns="http://www.w3.org/ns/widgets">
+    <name>Taqwa Guide</name>
+    <description>Islamic Mentor and Prayer Guide App</description>
+    <content src="index.html" />
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <plugin name="cordova-plugin-local-notification" spec="^0.9.0-beta.2" />
+    <plugin name="cordova-plugin-badge" spec="^0.8.8" />
+</widget>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taqwa Guide | Final Pro 2026</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://generativelanguage.googleapis.com https://api.aladhan.com;">
+
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="cordova.js"></script>
+
+    <style>
+        :root { 
+            --p: #064e3b; --a: #d97706; --bg: #fdfbf7; 
+            --danger: #dc2626; --user-msg: #e1ffc7; --ai-msg: #ffffff; 
+        }
+        
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 85px; color: #1f2937; overflow-x: hidden; }
+        
+        /* হেডার ডিজাইন */
+        .header { background: var(--p); color: white; padding: 20px 15px; border-radius: 0 0 30px 30px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
+        .live-clock { font-size: 32px; font-weight: 700; margin: 5px 0; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+        .current-waqt-box { background: rgba(255,255,255,0.15); padding: 15px; border-radius: 20px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.2); }
+        .waqt-timer-big { font-size: 26px; font-weight: 700; color: #fbbf24; }
+
+        .tab-content { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
+        .active-tab { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* চ্যাটবট (মেন্টর) ইন্টারফেস */
+        #chat-window { height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 15px; background: #f8fafc; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .user-bubble { align-self: flex-end; background: var(--user-msg); border-bottom-right-radius: 2px; color: #064e3b; border: 1px solid #c3e6cb; }
+        .ai-bubble { align-self: flex-start; background: var(--ai-msg); border-bottom-left-radius: 2px; border: 1px solid #edf2f7; }
+        
+        .chat-input-area { display: flex; gap: 10px; background: white; padding: 12px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: sticky; bottom: 5px; }
+        .chat-input-area input { flex: 1; border: 1px solid #e2e8f0; border-radius: 15px; padding: 12px; font-family: inherit; outline: none; }
+        .send-btn { background: var(--p); color: white; border: none; padding: 0 20px; border-radius: 15px; font-weight: bold; cursor: pointer; }
+
+        /* কার্ড ও অন্যান্য ট্যাব */
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 15px; border-top: 5px solid var(--p); }
+        .prayer-row { padding: 10px 0; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
+        .sub-nav { display: flex; gap: 8px; margin-bottom: 15px; }
+        .sub-nav-btn { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--p); background: white; color: var(--p); font-weight: bold; }
+        .sub-nav-btn.active { background: var(--p); color: white; }
+        .path-item { background: white; border-left: 5px solid var(--p); padding: 15px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 14px; }
+
+        /* বটম নেভিগেশন */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.08); border-radius: 20px 20px 0 0; }
+        .nav-item { border: none; background: none; color: #94a3b8; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--p); transform: translateY(-5px); }
+    </style>
+</head>
+<body>
+
+<div id="setup-screen" style="display: none; position: fixed; inset: 0; background: var(--p); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 30px; text-align: center;">
+    <h1>তাকওয়া গাইড</h1>
+    <p>জেলা নির্বাচন করুন</p>
+    <select id="district-select" style="width: 100%; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+        <option value="Dhaka">ঢাকা</option><option value="Munshiganj">মুন্সীগঞ্জ</option><option value="Chittagong">চট্টগ্রাম</option><option value="Sylhet">সিলেট</option><option value="Rajshahi">রাজশাহী</option><option value="Khulna">খুলনা</option><option value="Barisal">বরিশাল</option><option value="Rangpur">রংপুর</option>
+    </select>
+    <button onclick="saveSetup()" class="send-btn" style="background: white; color: var(--p); padding: 15px; width: 100%;">অ্যাপ শুরু করুন</button>
+</div>
+
+<div class="header">
+    <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.9;">
+        <div id="hijri-date">🌙 লোড হচ্ছে...</div>
+        <div id="eng-date">তারিখ...</div>
+    </div>
+    <div class="live-clock" id="clock">00:00:00 AM</div>
+    <div class="current-waqt-box">
+        <div id="waqt-name" style="font-weight: bold;">বর্তমান ওয়াক্ত</div>
+        <div id="waqt-range" style="font-size: 12px; margin-bottom: 5px;">--:-- | --:--</div>
+        <div class="waqt-timer-big" id="waqt-countdown">00:00:00</div>
+    </div>
+</div>
+
+<div id="home-tab" class="tab-content active-tab">
+    <div id="displayMosqueList"></div>
+</div>
+
+<div id="daily-tab" class="tab-content">
+    <div class="sub-nav">
+        <button id="btn-hadith" class="sub-nav-btn active" onclick="showPathContent('hadith')">হাদিস</button>
+        <button id="btn-dua" class="sub-nav-btn" onclick="showPathContent('dua')">দোয়া ও আমল</button>
+    </div>
+    <div id="path-list-container">লোড হচ্ছে...</div>
+</div>
+
+<div id="mentor-tab" class="tab-content">
+    <div id="chat-window">
+        <div class="bubble ai-bubble">আসসালামু আলাইকুম! আমি আপনার তাকওয়া মেন্টর। ইসলাম সম্পর্কিত যেকোনো প্রশ্ন এখানে করতে পারেন।</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="m-input" placeholder="আপনার প্রশ্নটি লিখুন...">
+        <button class="send-btn" id="mentor-btn" onclick="askMentor()">পাঠান</button>
+    </div>
+</div>
+
+<div id="waqt-tab" class="tab-content">
+    <div class="card">
+        <h3 id="location-display" style="color:var(--p); margin:0 0 15px 0;">📍 জেলা ভিত্তিক সময়</h3>
+        <div id="daily-times-list"></div>
+    </div>
+</div>
+
+<div id="settings-tab" class="tab-content">
+    <div class="card">
+        <h3>মসজিদ সেটিংস</h3>
+        <input type="text" id="mName" placeholder="মসজিদের নাম..." style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd; margin-bottom: 10px;">
+        <button class="send-btn" style="width:100%; padding: 12px;" onclick="addMosque()">যোগ করুন</button>
+        <button onclick="localStorage.clear(); location.reload();" style="margin-top:15px; background:none; border:1px solid #ccc; border-radius:10px; padding:10px; width:100%; cursor:pointer;">Reset App</button>
+    </div>
+    <div id="editMosqueList"></div>
+</div>
+
+<div class="nav-bar">
+    <button class="nav-item active" onclick="switchTab('home-tab', this)">নামায</button>
+    <button class="nav-item" onclick="switchTab('daily-tab', this)">পাথেয়</button>
+    <button class="nav-item" onclick="switchTab('mentor-tab', this)">পরামর্শ</button>
+    <button class="nav-item" onclick="switchTab('waqt-tab', this)">ওয়াক্ত</button>
+    <button class="nav-item" onclick="switchTab('settings-tab', this)">সেটিংস</button>
+</div>
+
+<script>
+    const KEY = 'AIzaSyD2xk4MyupZ9Vw5yvANSbplqW_VmSFfC8I'; 
+    let mosques = JSON.parse(localStorage.getItem('mosques')) || [];
+    let userDistrict = localStorage.getItem('userDistrict');
+    let pData = null;
+
+    function initApp() {
+        if (!userDistrict) { document.getElementById('setup-screen').style.display = 'flex'; } 
+        else { document.getElementById('setup-screen').style.display = 'none'; fetchData(); }
+        // নটিফিকেশন পারমিশন
+        if (window.cordova && cordova.plugins.notification.local) {
+            cordova.plugins.notification.local.requestPermission(function(granted) {});
+        }
+    }
+    document.addEventListener("deviceready", initApp, false);
+    window.onload = () => { if(!window.cordova) initApp(); };
+
+    function saveSetup() {
+        localStorage.setItem('userDistrict', document.getElementById('district-select').value);
+        location.reload();
+    }
+
+    async function fetchData() {
+        try {
+            const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${userDistrict}&country=Bangladesh&method=1`);
+            const json = await res.json();
+            pData = json.data.timings;
+            document.getElementById('location-display').innerText = `📍 জেলা: ${userDistrict}`;
+            startSystem();
+            fetchDailyContent();
+        } catch (e) { console.error(e); }
+    }
+
+    function startSystem() {
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour12: true });
+            document.getElementById('eng-date').innerText = now.toLocaleDateString('bn-BD', {day:'numeric', month:'long'});
+            try {
+                const hijri = new Intl.DateTimeFormat('bn-BD-u-ca-islamic-uma-nu-latn', {day:'numeric', month:'long', year:'numeric'}).format(now);
+                document.getElementById('hijri-date').innerText = `🌙 ${hijri}`;
+            } catch(e) { }
+            updateHeaderWaqt(now);
+            renderWaqtTab(now);
+            renderHomeMosques(now);
+        }, 1000);
+    }
+
+    // চ্যাটজিপিটি স্টাইল মেন্টর ফাংশন
+    async function askMentor() {
+        const input = document.getElementById('m-input');
+        const text = input.value.trim();
+        const win = document.getElementById('chat-window');
+        const btn = document.getElementById('mentor-btn');
+
+        if (!text) return;
+
+        addChatBubble(text, 'user-bubble');
+        input.value = '';
+        btn.disabled = true;
+
+        const aiLoading = addChatBubble('মেন্টর চিন্তা করছেন...', 'ai-bubble');
+
+        try {
+            // ২০২৬ সালের স্ট্যাবল এন্ডপয়েন্ট ও আপনার দেওয়া কী ব্যবহার করা হয়েছে
+            const prompt = `তুমি একজন বিজ্ঞ ইসলামিক মেন্টর। চ্যাটবট স্টাইলে সংক্ষেপে কুরআন ও হাদিসের আলোকে ইসলামিক উত্তর দাও। প্রশ্ন: ${text}`;
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await resp.json();
+            const reply = data.candidates[0].content.parts[0].text;
+            aiLoading.innerHTML = reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        } catch (e) {
+            aiLoading.innerText = "ইন্টারনেট বা এপিআই সংযোগে সমস্যা হয়েছে।";
+        } finally {
+            btn.disabled = false;
+            win.scrollTop = win.scrollHeight;
+        }
+    }
+
+    function addChatBubble(text, className) {
+        const div = document.createElement('div');
+        div.className = 'bubble ' + className;
+        div.innerHTML = text.replace(/\n/g, '<br>');
+        const win = document.getElementById('chat-window');
+        win.appendChild(div);
+        win.scrollTop = win.scrollHeight;
+        return div;
+    }
+
+    // পপআপ নটিফিকেশন (High Priority with Sound)
+    function scheduleOfflineNotify() {
+        if (window.cordova && cordova.plugins.notification.local) {
+            cordova.plugins.notification.local.cancelAll();
+            mosques.forEach((m, mIdx) => {
+                ['ফজর', 'জোহর', 'আসর', 'মাগরিব', 'এশা'].forEach((prayer, pIdx) => {
+                    if (m.times[prayer]) {
+                        const [h, min] = m.times[prayer].split(':').map(Number);
+                        let jTime = new Date(); jTime.setHours(h, min, 0, 0);
+                        if (jTime > new Date()) {
+                            cordova.plugins.notification.local.schedule({
+                                id: mIdx * 10 + pIdx,
+                                title: prayer + " জামাত - " + m.name,
+                                text: "জামাআত শুরু হতে ১০ মিনিট বাকি। নামাযের প্রস্তুতি নিন।",
+                                at: new Date(jTime.getTime() - 10 * 60000),
+                                priority: 2, sound: 'res://platform_default', foreground: true, vibrate: true, lockscreen: true
+                            });
+                        }
+                    }
+                });
+            });
+        }
+    }
+
+    // প্রতিদিনের হাদিস ও দোয়া আপডেট
+    async function fetchDailyContent() {
+        const today = new Date().toDateString();
+        const saved = JSON.parse(localStorage.getItem('pathData'));
+        if (saved && saved.date === today) { showPathContent('hadith'); return; }
+        try {
+            const prompt = "Give me 5 Sahih Hadiths and 5 Islamic Duas in Bengali. Format each line starting with [H] for Hadith and [D] for Dua.";
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${KEY}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await resp.json();
+            const raw = data.candidates[0].content.parts[0].text;
+            const lines = raw.split('\n');
+            const h = lines.filter(l => l.includes('[H]')).map(l => l.replace('[H]', '').trim());
+            const d = lines.filter(l => l.includes('[D]')).map(l => l.replace('[D]', '').trim());
+            localStorage.setItem('pathData', JSON.stringify({ date: today, hadith: h, dua: d }));
+            showPathContent('hadith');
+        } catch (e) { document.getElementById('path-list-container').innerText = "পাথেয় লোড এরর!"; }
+    }
+
+    function showPathContent(type) {
+        const saved = JSON.parse(localStorage.getItem('pathData')); if (!saved) return;
+        document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + type).classList.add('active');
+        const list = type === 'hadith' ? saved.hadith : saved.dua;
+        document.getElementById('path-list-container').innerHTML = list.map(i => `<div class="path-item">${i}</div>`).join('');
+    }
+
+    // টাইম ও নেভিগেশন লজিক
+    function updateHeaderWaqt(now) {
+        if(!pData) return;
+        const timings = [{n:'ফজর',s:pData.Fajr,e:pData.Sunrise},{n:'জোহর',s:pData.Dhuhr,e:pData.Asr},{n:'আসর',s:pData.Asr,e:pData.Maghrib},{n:'মাগরিব',s:pData.Maghrib,e:pData.Isha},{n:'এশা',s:pData.Isha,e:pData.Fajr}];
+        let current = null;
+        for (let i=0; i<timings.length; i++) {
+            let s = timeToDate(timings[i].s); let e = timeToDate(timings[i].e);
+            if (timings[i].n==='এশা' && now < timeToDate(pData.Fajr)) s.setDate(s.getDate()-1);
+            if (timings[i].n==='এশা' && e<s) e.setDate(e.getDate()+1);
+            if (now >= s && now < e) { current=timings[i]; break; }
+        }
+        if (current) {
+            document.getElementById('waqt-name').innerText = `বর্তমান ওয়াক্ত: ${current.n}`;
+            document.getElementById('waqt-range').innerText = `${formatTo12Hr(current.s)} - ${formatTo12Hr(current.e)}`;
+            let et = timeToDate(current.e); if(et < now) et.setDate(et.getDate()+1);
+            document.getElementById('waqt-countdown').innerText = formatTimer(et-now);
+        }
+    }
+
+    function renderWaqtTab(now) {
+        if(!pData) return;
+        document.getElementById('daily-times-list').innerHTML = ['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(k => `<div class="prayer-row"><b>${k==='Fajr'?'ফজর':k==='Dhuhr'?'জোহর':k==='Asr'?'আসর':k==='Maghrib'?'মাগরিব':'এশা'}</b> <span>${formatTo12Hr(pData[k])}</span></div>`).join('');
+    }
+
+    function renderHomeMosques(now) {
+        document.getElementById('displayMosqueList').innerHTML = mosques.map(m => {
+            let h = `<div class="card"><h3>🕌 ${m.name}</h3>`;
+            for(let p in m.times) {
+                let [hh,mm]=m.times[p].split(':').map(Number); let pt=new Date(); pt.setHours(hh,mm,0,0);
+                let diff = pt-now; let st = (diff<=0 && diff>-1200000) ? "<b style='color:red'>চলমান</b>" : (diff>0 ? formatTimer(diff) : "<span style='color:#999'>শেষ</span>");
+                h += `<div class="prayer-row"><span>${p}</span> <span>${formatTo12Hr(m.times[p])} <small>(${st})</small></span></div>`;
+            }
+            return h + `</div>`;
+        }).join('') || "<p style='text-align:center; padding:20px;'>সেটিংস থেকে মসজিদ যোগ করুন</p>";
+    }
+
+    function timeToDate(t) { const [h,m]=t.split(':'); const d=new Date(); d.setHours(h,m,0,0); return d; }
+    function formatTo12Hr(t) { let [h,m]=t.split(':'); h=parseInt(h); let ap=h>=12?'PM':'AM'; h=h%12||12; return `${h}:${m} ${ap}`; }
+    function formatTimer(ms) { let s=Math.floor(ms/1000); let m=Math.floor(s/60); let h=Math.floor(m/60); return `${(h%24).toString().padStart(2,'0')}:${(m%60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
+    
+    function switchTab(id, el) {
+        document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active-tab'));
+        document.getElementById(id).classList.add('active-tab');
+        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+        el.classList.add('active');
+        if(id==='settings-tab') renderSettings();
+    }
+    
+    function addMosque() {
+        const n = document.getElementById('mName').value; if(!n) return;
+        mosques.push({id:Date.now(),name:n,times:{'ফজর':'05:15','জোহর':'13:30','আসর':'16:45','মাগরিব':'18:10','এশা':'20:00'}});
+        localStorage.setItem('mosques', JSON.stringify(mosques)); renderSettings();
+        document.getElementById('mName').value=''; scheduleOfflineNotify();
+    }
+    
+    function renderSettings() {
+        document.getElementById('editMosqueList').innerHTML = mosques.map(m => `<div class="card"><b>${m.name}</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px;">${Object.keys(m.times).map(p=>`<div><label style="font-size:10px">${p}</label><input type="time" value="${m.times[p]}" onchange="updateMTime(${m.id},'${p}',this.value)"></div>`).join('')}</div><button onclick="delM(${m.id})" style="background:#fee2e2;color:red;border:none;margin-top:10px;padding:8px;border-radius:10px;font-weight:bold;width:100%">ডিলিট</button></div>`).join('');
+    }
+    function updateMTime(id,p,v) { mosques.find(m=>m.id===id).times[p]=v; localStorage.setItem('mosques',JSON.stringify(mosques)); scheduleOfflineNotify(); }
+    function delM(id) { mosques=mosques.filter(m=>m.id!==id); localStorage.setItem('mosques',JSON.stringify(mosques)); renderSettings(); scheduleOfflineNotify(); }
+</script> 
+</body>
+</html>
