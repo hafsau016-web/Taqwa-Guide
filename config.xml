@@ -1,18 +1,20 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.taqwa.guide" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android">
+<widget id="com.taqwaguide.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Taqwa Guide</name>
-    <description>Islamic Mentor App</description>
+    <description>Islamic Prayer Times and Mentor App</description>
+    <author email="you@example.com" href="http://example.com">Your Name</author>
     <content src="index.html" />
     <access origin="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
     
-    <preference name="android-minSdkVersion" value="22" />
-    <preference name="android-targetSdkVersion" value="30" />
-    <preference name="AndroidXEnabled" value="true" />
-    
+    <!-- অ্যান্ড্রয়েড কনফিগারেশন -->
     <platform name="android">
-        <preference name="android-compileSdkVersion" value="34" />
+        <allow-intent href="market:*" />
+        <preference name="AndroidXEnabled" value="true" />
     </platform>
-    
-    <plugin name="cordova-plugin-local-notification" spec="^0.9.0-beta.2" />
-</widget>
 
+    <!-- প্লাগিনসমূহ (এখানেই নোটিফিকেশন প্লাগিন যোগ করা হলো) -->
+    <plugin name="cordova-plugin-local-notification" spec="^0.8.5" />
+    <plugin name="cordova-plugin-device" spec="^2.0.3" />
+</widget>
