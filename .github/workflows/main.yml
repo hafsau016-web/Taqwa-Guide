@@ -22,21 +22,18 @@ jobs:
         
       - name: Setup Project and Build
         run: |
-          # ১. প্রজেক্ট তৈরি
           cordova create temp_app com.taqwa.guide TaqwaGuide
-          
-          # ২. ফাইলগুলো সঠিক জায়গায় কপি করা
           cp config.xml temp_app/config.xml
           cp index.html temp_app/www/index.html
           cd temp_app
           
-          # ৩. আধুনিক অ্যান্ড্রয়েড প্ল্যাটফর্ম যোগ করা (ভার্সন ১৩)
-          cordova platform add android@13.0.0
+          # এটি সবচেয়ে জরুরি পরিবর্তন
+          cordova platform add android@12.0.1
           
-          # ৪. লাইসেন্স অটো-অ্যাকসেপ্ট
+          # লাইসেন্স গ্রহণ
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           
-          # ৫. বিল্ড শুরু
+          # ফিক্সড বিল্ড কমান্ড
           cordova build android --debug -- --gradleArg=-PcdvCompileSdkVersion=34 --gradleArg=-PcdvTargetSdkVersion=34
           
       - name: Upload APK
