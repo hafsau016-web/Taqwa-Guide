@@ -6,35 +6,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up JDK 17
+      - name: Set up JDK 11
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '11'
           distribution: 'temurin'
           
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '16'
           
       - name: Install Cordova
-        run: npm install -g cordova
+        run: npm install -g cordova@11.0.0
         
       - name: Setup Project and Build
         run: |
+          # প্রজেক্ট তৈরি
           cordova create temp_app com.taqwa.guide TaqwaGuide
           cp config.xml temp_app/config.xml
           cp index.html temp_app/www/index.html
           cd temp_app
           
-          # এটি সবচেয়ে জরুরি পরিবর্তন
-          cordova platform add android@12.0.1
+          # স্ট্যাবল অ্যান্ড্রয়েড প্ল্যাটফর্ম যোগ
+          cordova platform add android@10.1.2
           
           # লাইসেন্স গ্রহণ
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           
-          # ফিক্সড বিল্ড কমান্ড
-          cordova build android --debug -- --gradleArg=-PcdvCompileSdkVersion=34 --gradleArg=-PcdvTargetSdkVersion=34
+          # এপিকে বিল্ড
+          cordova build android --debug
           
       - name: Upload APK
         uses: actions/upload-artifact@v4
